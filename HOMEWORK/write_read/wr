@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#define N 3
+typedef struct
+{
+	int id;
+	char name[20];
+	int score;
+}stu;
+
+int JudgeArgs(int ,int);
+
+int main(int args,char *argv[])
+{
+	if(JudgeArgs(args,1)==-1)
+		return -1;
+	stu s[N]={{1000,"libai",88},{1001,"dufu",88},{1002,"taibaijingxing",100}};
+	int fd;
+	fd = open(argv[1],O_RDWR|O_CREAT,0666);
+	if(-1==fd)
+	{
+		perror("fd");
+		return -1;	
+	}
+	int ret=0;
+	for(int i=0;i<N;i++)
+	{
+		char buf[64]={0};
+		sprintf(buf,"%d %s %d\n",s[i].id,s[i].name,s[i].score);
+		write(fd,buf,strlen(buf));
+		if(-1==ret)
+		{
+			perror("write");
+			return -1;
+		}
+	}
+
+	lseek(fd,0,SEEK_SET);
+
+	int ret1=0;
+	char buff[128]={0};
+	ret1=read(fd,buff,sizeof(buff));
+	printf("ret1:%d\n%s",ret1,buff);
+
+	close(fd);
+	return 0;
+
+}
+
